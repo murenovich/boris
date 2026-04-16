@@ -34,9 +34,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 40px 20px 60px;
+    justify-content: flex-start;
+    padding: 40px 20px 80px;
     gap: 30px;
+  }
+
+  /* ── ENTRANCE ─────────────────────────────── */
+  .neon-sign,
+  .input-row {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .neon-sign { animation-delay: 120ms; }
+  .input-row { animation-delay: 540ms; }
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
   }
 
   /* ── NEON SIGN ────────────────────────────── */
@@ -147,6 +160,32 @@
     color: #efe7d5;
     cursor: pointer;
     white-space: nowrap;
+    min-width: 130px;
+    transition: transform 120ms ease, background 160ms ease;
+  }
+  .input-row button:hover { background: #2a2319; }
+  .input-row button:active { transform: translateY(1px); }
+  .input-row button:disabled { cursor: wait; opacity: 0.85; }
+
+  /* ── PRINTER SLOT ─────────────────────────── */
+  .receipt-printer {
+    width: 360px;
+    max-width: 100%;
+    padding-bottom: 80px; /* preserve receipt's drop shadow */
+    clip-path: inset(0 0 100% 0);
+    will-change: clip-path;
+  }
+  .receipt-printer.is-printing {
+    animation: paper-feed 2200ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  }
+  @keyframes paper-feed {
+    0%   { clip-path: inset(0 0 100% 0); }
+    18%  { clip-path: inset(0 0 78% 0); }
+    22%  { clip-path: inset(0 0 76% 0); } /* tiny hitch */
+    48%  { clip-path: inset(0 0 48% 0); }
+    52%  { clip-path: inset(0 0 46% 0); }
+    80%  { clip-path: inset(0 0 12% 0); }
+    100% { clip-path: inset(0 0 0 0); }
   }
 
   /* ── RECEIPT ──────────────────────────────── */
@@ -236,12 +275,23 @@
     color: var(--stamp);
     border: 4px solid var(--stamp);
     padding: 10px 24px 6px;
-    transform: rotate(-6deg);
-    opacity: 0.88;
+    transform: rotate(-20deg) scale(1.6);
+    opacity: 0;
     text-shadow:
       1px 0 0 rgba(180, 37, 31, 0.3),
       -1px 0 0 rgba(180, 37, 31, 0.3);
     filter: url(#rough);
+    will-change: transform, opacity;
+  }
+  .is-printing .stamp {
+    animation: stamp-slam 360ms cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+    animation-delay: 2100ms;
+  }
+  @keyframes stamp-slam {
+    0%   { opacity: 0;    transform: rotate(-20deg) scale(1.6); }
+    55%  { opacity: 1;    transform: rotate(-3deg) scale(0.9); }
+    78%  {                transform: rotate(-7deg) scale(1.04); }
+    100% { opacity: 0.88; transform: rotate(-6deg) scale(1); }
   }
   .r-footer {
     margin-top: 20px;
@@ -278,44 +328,76 @@
   </div>
 
   <div class="input-row">
-    <input value="github.com/murenovich/boris" readonly>
-    <button>POUR ONE</button>
+    <input id="repo-url" value="github.com/murenovich/boris" readonly>
+    <button id="pour">POUR ONE</button>
   </div>
 
-  <div class="receipt">
-    <div class="r-center">
-      <div class="r-title">BORIS'S BAR</div>
-      <div class="r-sub">END OF THE INTERNET · LOWER LEVEL</div>
-    </div>
-    <hr class="r-hr">
-    <div class="r-order r-center">ORDER #00042 &nbsp;·&nbsp; APR 16, 2026 · 23:47</div>
-    <hr class="r-hr">
+  <div class="receipt-printer" id="printer">
+    <div class="receipt">
+      <div class="r-center">
+        <div class="r-title">BORIS'S BAR</div>
+        <div class="r-sub">END OF THE INTERNET · LOWER LEVEL</div>
+      </div>
+      <hr class="r-hr">
+      <div class="r-order r-center">ORDER #00042 &nbsp;·&nbsp; APR 16, 2026 · 23:47</div>
+      <hr class="r-hr">
 
-    <div class="r-row"><span>SPECIMEN</span><span>boris</span></div>
-    <div class="r-row"><span>COMMITS</span><span>1</span></div>
-    <div class="r-row"><span>AGE</span><span>3 yrs, dusty</span></div>
-    <div class="r-row"><span>LAST TOUCHED</span><span>APR '23</span></div>
+      <div class="r-row"><span>SPECIMEN</span><span>boris</span></div>
+      <div class="r-row"><span>COMMITS</span><span>1</span></div>
+      <div class="r-row"><span>AGE</span><span>3 yrs, dusty</span></div>
+      <div class="r-row"><span>LAST TOUCHED</span><span>APR '23</span></div>
 
-    <hr class="r-hr">
-    <div class="r-section-label">— DIAGNOSIS —</div>
-    <div class="r-body">
-      A Discord bot that never learned to speak. You scaffolded the hosting,
-      wrote lint rules like commandments, then walked out before pouring
-      the first drink.
-    </div>
-    <div class="r-body">
-      The bones are fine. The soul never arrived.
-    </div>
+      <hr class="r-hr">
+      <div class="r-section-label">— DIAGNOSIS —</div>
+      <div class="r-body">
+        A Discord bot that never learned to speak. You scaffolded the hosting,
+        wrote lint rules like commandments, then walked out before pouring
+        the first drink.
+      </div>
+      <div class="r-body">
+        The bones are fine. The soul never arrived.
+      </div>
 
-    <hr class="r-hr">
-    <div class="r-verdict-wrap">
-      <span class="stamp">86</span>
-    </div>
-    <hr class="r-hr">
+      <hr class="r-hr">
+      <div class="r-verdict-wrap">
+        <span class="stamp">86</span>
+      </div>
+      <hr class="r-hr">
 
-    <div class="r-footer">THANK YOU · COME AGAIN</div>
-    <div class="r-barcode"></div>
+      <div class="r-footer">THANK YOU · COME AGAIN</div>
+      <div class="r-barcode"></div>
+    </div>
   </div>
 </div>
+
+<script>
+  (function () {
+    const printer = document.getElementById('printer');
+    const button = document.getElementById('pour');
+    const POUR_LABEL = 'POUR ONE';
+    const PRINT_MS = 2500;
+
+    function print() {
+      printer.classList.remove('is-printing');
+      // force reflow so the animation restarts cleanly
+      void printer.offsetWidth;
+      printer.classList.add('is-printing');
+
+      button.disabled = true;
+      button.textContent = 'POURING…';
+      setTimeout(() => {
+        button.disabled = false;
+        button.textContent = POUR_LABEL;
+      }, PRINT_MS);
+    }
+
+    button.addEventListener('click', print);
+
+    // Auto-play once on arrival, after the entrance animations settle.
+    window.addEventListener('load', () => {
+      setTimeout(print, 1400);
+    });
+  })();
+</script>
 </body>
 </html>
